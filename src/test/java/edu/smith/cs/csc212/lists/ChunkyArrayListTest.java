@@ -171,6 +171,7 @@ public class ChunkyArrayListTest {
 		// If this test runs forever, make sure removeIndex actually removes things.
 		while(!items1.isEmpty()) {
 			int value = items1.removeIndex(rand.nextInt(items1.size()));
+			
 			insertSorted(items2, value);
 		}
 		

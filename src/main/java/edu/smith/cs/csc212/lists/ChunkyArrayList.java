@@ -38,27 +38,69 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 
 	@Override
 	public T removeFront() {
-		throw new TODOErr();
+		if (chunks.getFront().size() == 0) {
+			chunks.removeFront();
+		}
+		if (chunks.size()== 0) {
+			throw new EmptyListError();
+		}
+		else {
+			return chunks.getFront().removeFront();
+		}
 	}
 
 	@Override
 	public T removeBack() {
-		throw new TODOErr();
+		if (chunks.getBack().size() == 0) {
+			chunks.removeBack();
+		}
+		return chunks.getBack().removeBack();
 	}
 
 	@Override
 	public T removeIndex(int index) {
-		throw new TODOErr();
+		int count = 0;
+		T value = null;
+		if (this.size()== 0) {
+			throw new EmptyListError();
+		}
+		if (index < 0 || index >= this.size()) {
+			throw new BadIndexError(index);
+		}
+		for (FixedSizeList<T> chunk : this.chunks) {
+			int listIndex = 0;
+			for (T entry : chunk) {
+				if (count == index) {
+					value = chunk.removeIndex(listIndex);
+				}
+				count ++;
+				listIndex ++;
+			}
+		}
+		return value;
 	}
 
 	@Override
 	public void addFront(T item) {
-		throw new TODOErr();
+		if (chunks.size() == 0) {
+			chunks.addFront(makeChunk());
+		}
+			this.addIndex(0, item);
+				
 	}
 
 	@Override
 	public void addBack(T item) {
-		throw new TODOErr();
+		if (chunks.isEmpty()) {
+			this.addFront(item);
+		}
+		else if (chunks.getBack().size() == this.chunkSize) {
+			chunks.addBack(makeChunk());
+			chunks.getBack().addBack(item);
+		}
+		else {
+			chunks.getBack().addBack(item);
+		}
 	}
 
 	@Override
@@ -77,13 +119,33 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 				if (chunk.isFull()) {
 					// check can roll to next
 					// or need a new chunk
-					throw new TODOErr();
-				} else {
+					if (index == end) {
+						chunks.getIndex(chunkIndex + 1).addFront(item);
+					}
+					if (chunkIndex + 1 == chunks.size()) {
+						chunks.addBack(makeChunk());
+					}
+					if (chunks.getIndex(chunkIndex+1).size() == chunkSize) {
+						chunks.addBack(makeChunk());
+						T back = chunk.removeBack();
+						chunks.getIndex(chunkIndex+1).addFront(back);
+						chunk.addIndex(index-start, item);
+
+					}
+					else {
+						T back = chunk.removeBack();
+						chunks.getIndex(chunkIndex+1).addFront(back);
+						chunk.addIndex(index-start, item);
+					}
+				
+				} 
+				else {
 					// put right in this chunk, there's space.
-					throw new TODOErr();
+					chunk.addIndex(index-start, item);
+					
 				}	
 				// upon adding, return.
-				// return;
+				return;
 			}
 			
 			// update bounds of next chunk.
@@ -100,6 +162,7 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 
 	@Override
 	public T getBack() {
+		checkNotEmpty();
 		return this.chunks.getBack().getBack();
 	}
 
@@ -127,7 +190,21 @@ public class ChunkyArrayList<T> extends ListADT<T> {
 	
 	@Override
 	public void setIndex(int index, T value) {
-		throw new TODOErr();
+		if (index < 0 || index  >=  this.size()) {
+			throw new BadIndexError(index);
+		}
+		int count = 0;
+		for (FixedSizeList<T> chunk : this.chunks){
+			int listCount = 0;
+			for (T entry : chunk) {
+				if (count == index) {
+					chunk.setIndex(listCount, value);
+					return;
+				}
+				count ++;
+				listCount ++;
+			}
+		}
 	}
 
 	@Override

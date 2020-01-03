@@ -2,6 +2,7 @@ package edu.smith.cs.csc212.lists;
 
 import me.jjfoley.adt.ArrayWrapper;
 import me.jjfoley.adt.ListADT;
+import me.jjfoley.adt.errors.EmptyListError;
 import me.jjfoley.adt.errors.TODOErr;
 
 /**
@@ -50,8 +51,26 @@ public class GrowableList<T> extends ListADT<T> {
 
 	@Override
 	public T removeIndex(int index) {
+		/** 
+		 * don't try to remove something from an empty list
+		 */
+		if (fill == 0) {
+			throw new EmptyListError();
+		}
+		/**
+		 * don't try to remove something not in the list
+		 */
+		checkInclusiveIndex(index);
+		/**
+		 * save the value at the given index
+		 */
+		T value = this.getIndex(index);
 		// slide to the left
-		throw new TODOErr();
+		for (int i = index; i < this.size()-1; i++) {
+			this.array.setIndex(i, this.array.getIndex(i+1));
+		}
+		fill -= 1;
+		return value;	
 	}
 
 	@Override
@@ -69,16 +88,29 @@ public class GrowableList<T> extends ListADT<T> {
 
 	/**
 	 * This private method is called when we need to make room in our GrowableList.
+	 * makes a new bigger array, copies all the date into it, then replaces the old array with it
 	 */
 	private void resizeArray() {
 		// TODO: use this where necessary (already called in addBack!)
-		throw new TODOErr();
+		ArrayWrapper<T> newArray = new ArrayWrapper<>(fill+1);
+		for (int i = 0; i < array.size(); i ++) {
+			newArray.setIndex(i, array.getIndex(i));
+		}
+		this.array = newArray;
 	}
 
 	@Override
 	public void addIndex(int index, T item) {
+		checkInclusiveIndex(index);
+		if (fill >= array.size()) {
+			this.resizeArray();
+		}
 		// slide to the right
-		throw new TODOErr();
+		for (int i = this.size(); i > index; i --) {
+			this.array.setIndex(i, this.array.getIndex(i-1));
+		}
+		this.array.setIndex(index, item);
+		fill ++;
 	}
 
 	@Override
